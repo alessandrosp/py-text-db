@@ -1,10 +1,12 @@
 import os
+import pandas as pd
 from db_settings import *
 
 def create_table(table_name, fields):
     """It creates a table using *fields* as header."""
     # TODO(alessandrosp): Validate *fields*
-    # TODO(alessandrosp): Check whether table exists, in case returns error
+    # TODO(alessandrosp): Check whether table exists, in case returns error,
+    #                     unless a overwrite is set to True
     # Note: Currently if a table with the same exists it's over-written
     location = db_name+"/"+table_name
 
@@ -59,29 +61,39 @@ def drop_database():
 
 def select_from(table_name, where = None):
     """It returns one or more rows from the selected table."""
-    # TODO(alessandrosp): Use Pandas instead of list of lists
-    # TODO(alessandrosp): Implement where clause
-    # Initilise results
-    results = []
-
     # Check whether a where clause was specified
     if where:
+        # TODO(alessandrosp): Implement where clause
+        # e.g. where = {"name": ["=","John Benneth"]}
+        # e.g. where = {"age": [">","25"]}
+        # e.g. where = {"name": ["!=","Cat Stevens"],
+        #               "age": ["<","50"]}
         pass
+
     # If no where was specified all rows are returned
     else:
+        # Initialise results as a list
+        results_list = []
+
         # The location of the table
         location = db_name+"/"+table_name
 
+        # Results are written into a list of lists first
         with open(location, "r") as table:
             for row in table:
-                results.append(row.strip("\n").split(delimeter))
+                results_list.append(row.strip("\n").split(delimeter))
+
+        # Results are converted to a Pandas DataFrame
+        results = pd.DataFrame(results_list[1:],
+                               columns = results_list[0])
 
     return results
 
 # TESTING
-create_table("user",["name","age",])
-insert_into("user",["John Benneth", "24"])
-insert_into("user",["Adriano Meis", "31"])
-test = select_from("user")
+if __name__ == "__main__":
+    create_table("user",["name","age",])
+    insert_into("user",["John Benneth", "24"])
+    insert_into("user",["Adriano Meis", "31"])
+    test = select_from("user")
 
-import pdb; pdb.set_trace()
+    import pdb; pdb.set_trace()
