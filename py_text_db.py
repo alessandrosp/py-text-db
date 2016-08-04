@@ -2,6 +2,22 @@ import os
 import pandas as pd
 from db_settings import *
 
+def compare(operator, first_arg, second_arg):
+    if operator == "=":
+        return first_arg == second_arg
+    elif operator == "!=":
+        return first_arg != second_arg
+    elif operator == ">":
+        return first_arg > second_arg
+    elif operator == ">=":
+        return first_arg >= second_arg
+    elif operator == "<":
+        return first_arg < second_arg
+    elif operator == "<=":
+        return first_arg <= second_arg
+    else:
+        raise ValueError("No valid operator was specified")
+
 def create_table(table_name, fields):
     """It creates a table using *fields* as header."""
     # TODO(alessandrosp): Validate *fields*
@@ -61,6 +77,14 @@ def drop_database():
 
 def select_from(table_name, where = None):
     """It returns one or more rows from the selected table."""
+    # TODO(alessandrosp): Specify which columns to return
+
+    # The location of the table
+    location = db_name+"/"+table_name
+
+    # Initialise results as a list
+    results_list = []
+
     # Check whether a where clause was specified
     if where:
         # TODO(alessandrosp): Implement where clause
@@ -68,20 +92,36 @@ def select_from(table_name, where = None):
         # e.g. where = {"age": [">","25"]}
         # e.g. where = {"name": ["!=","Cat Stevens"],
         #               "age": ["<","50"]}
-        pass
+
+        first_row = True
+        with open(location, "r") as table:
+            for row in table:
+                if first_row:
+                    header = row.strip("\n").split(delimeter)
+                    first_row = False
+                elif not first_row:
+                    values = row.strip("\n").split(delimeter)
+                    count_match = 0
+                    for key in where.keys():
+                        if compare( operator = where[key][0],
+                                    first_arg = values[header.index(key)],
+                                    second_arg = where[key][1]):
+                            count_match += 1
+                        if count_match == len(where.keys()):
+                            results_list.append(values)
+
+        # Results are converted to a Pandas DataFrame
+        results = pd.DataFrame(results_list,
+                               columns = header)
+
 
     # If no where was specified all rows are returned
     else:
-        # Initialise results as a list
-        results_list = []
-
-        # The location of the table
-        location = db_name+"/"+table_name
-
         # Results are written into a list of lists first
         with open(location, "r") as table:
             for row in table:
-                results_list.append(row.strip("\n").split(delimeter))
+                values = row.strip("\n").split(delimeter)
+                results_list.append(values)
 
         # Results are converted to a Pandas DataFrame
         results = pd.DataFrame(results_list[1:],
@@ -94,6 +134,12 @@ if __name__ == "__main__":
     create_table("user",["name","age",])
     insert_into("user",["John Benneth", "24"])
     insert_into("user",["Adriano Meis", "31"])
-    test = select_from("user")
+    insert_into("user",["Nicholas Corbyn", "53"])
+    insert_into("user",["Jonathan Redsmith", "18"])
+    test1 = select_from("user", where = {"name": ["=","John Benneth"]})
+    test2 = select_from("user", where = {"name": [">=","B"]})
+    test3 = select_from("user", where = {"age": ["!=","18"]})
+    test4 = select_from("user", where = {   "name": ["<=","L"],
+                                            "age": [">","20"]})
 
     import pdb; pdb.set_trace()
