@@ -40,23 +40,44 @@ def create_table(table_name, fields):
 
     return None
 
-def insert_into(table_name, row):
-    """It inserts a new row into table_name table"""
+def insert_into(table_name, values):
+    """It inserts one or more new rows into table_name table"""
     # TODO(alessandrosp): Validate row match fields
+
     # The location of the table
     location = db_name+"/"+table_name
 
-    # Create the row to insert into the table
-    delimited_row = ""
-    for element in row:
-        if element == row[-1]:
-            delimited_row += element
-        else:
-            delimited_row += element+delimeter
+    if isinstance(values, list):
+                # Create the row to insert into the table
+        delimited_row = ""
+        for element in values:
+            if element == values[-1]: # Last element
+                delimited_row += element
+            else: # Not last element
+                delimited_row += element+delimeter
 
-    # Insert the row
-    with open(location, "a") as table:
-        table.write(delimited_row+"\n")
+        # Insert the row
+        with open(location, "a") as table:
+            table.write(delimited_row+"\n")
+
+    elif isinstance(values, pd.DataFrame):
+        # For each row in the DataFrame...
+        for row in values.iterrows():
+            delimited_row = ""
+            # ...We iterate through the individual elements...
+            for index_element in range(row[1].shape[0]):
+                # ...And we concatenate the elements into a row
+                if index_element == (row[1].shape[0])-1: # Last element
+                    delimited_row += row[1][index_element]
+                else: # Not last element
+                    delimited_row += row[1][index_element]+delimeter
+
+            # Insert the row into the table
+            with open(location, "a") as table:
+                table.write(delimited_row+"\n")
+
+    else:
+        raise ValueError("Input data must be list or Pandas DataFrame")
 
     return None
 
@@ -141,5 +162,6 @@ if __name__ == "__main__":
     test3 = select_from("user", where = {"age": ["!=","18"]})
     test4 = select_from("user", where = {   "name": ["<=","L"],
                                             "age": [">","20"]})
+    insert_into("user", test2)
 
     import pdb; pdb.set_trace()
