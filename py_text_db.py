@@ -2,7 +2,11 @@ import os
 import pandas as pd
 from db_settings import *
 
+# TODO(alessandrosp): Function to show all tables
+# TODO(alessandrosp): Inner joins between tables
+
 def compare(operator, first_arg, second_arg):
+    """It compares first_arg against second_arg using operator."""
     if operator == "=":
         return first_arg == second_arg
     elif operator == "!=":
@@ -21,6 +25,7 @@ def compare(operator, first_arg, second_arg):
 def create_table(table_name, fields):
     """It creates a table using *fields* as header."""
     # TODO(alessandrosp): Validate *fields*
+    # TODO(alessandrosp): Allows to create a table + inserting using DataFrame
     # TODO(alessandrosp): Check whether table exists, in case returns error,
     #                     unless a overwrite is set to True
     # Note: Currently if a table with the same exists it's over-written
@@ -42,7 +47,7 @@ def create_table(table_name, fields):
 
 def insert_into(table_name, values):
     """It inserts one or more new rows into table_name table"""
-    # TODO(alessandrosp): Validate row match fields
+    # TODO(alessandrosp): Validate values match fields
 
     # The location of the table
     location = db_name+"/"+table_name
@@ -108,7 +113,6 @@ def select_from(table_name, where = None):
 
     # Check whether a where clause was specified
     if where:
-        # TODO(alessandrosp): Implement where clause
         # e.g. where = {"name": ["=","John Benneth"]}
         # e.g. where = {"age": [">","25"]}
         # e.g. where = {"name": ["!=","Cat Stevens"],
@@ -128,6 +132,7 @@ def select_from(table_name, where = None):
                                     first_arg = values[header.index(key)],
                                     second_arg = where[key][1]):
                             count_match += 1
+                        # All where clauses must be met for row to be returned
                         if count_match == len(where.keys()):
                             results_list.append(values)
 
@@ -136,7 +141,7 @@ def select_from(table_name, where = None):
                                columns = header)
 
 
-    # If no where was specified all rows are returned
+    # If no where clause was specified all rows are returned
     else:
         # Results are written into a list of lists first
         with open(location, "r") as table:
