@@ -52,8 +52,9 @@ def insert_into(table_name, values):
     # The location of the table
     location = db_name+"/"+table_name
 
+    # If single row as list
     if isinstance(values, list):
-                # Create the row to insert into the table
+        # Create the row to insert into the table
         delimited_row = ""
         for element in values:
             if element == values[-1]: # Last element
@@ -65,6 +66,7 @@ def insert_into(table_name, values):
         with open(location, "a") as table:
             table.write(delimited_row+"\n")
 
+    # If Pandas DataFrame
     elif isinstance(values, pd.DataFrame):
         # For each row in the DataFrame...
         for row in values.iterrows():
@@ -94,8 +96,7 @@ def drop_table(table_name):
 
 def drop_database():
     """Use with caution: it deletes every table in the database."""
-    db_location = os.path.dirname(os.path.abspath(__file__))+"/"+db_name
-    tables = os.listdir(db_location)
+    tables = os.listdir(db_name+"/")
     for table in tables:
         drop_table(table)
 
@@ -155,18 +156,10 @@ def select_from(table_name, where = None):
 
     return results
 
-# TESTING
-if __name__ == "__main__":
-    create_table("user",["name","age",])
-    insert_into("user",["John Benneth", "24"])
-    insert_into("user",["Adriano Meis", "31"])
-    insert_into("user",["Nicholas Corbyn", "53"])
-    insert_into("user",["Jonathan Redsmith", "18"])
-    test1 = select_from("user", where = {"name": ["=","John Benneth"]})
-    test2 = select_from("user", where = {"name": [">=","B"]})
-    test3 = select_from("user", where = {"age": ["!=","18"]})
-    test4 = select_from("user", where = {   "name": ["<=","L"],
-                                            "age": [">","20"]})
-    insert_into("user", test2)
+def show_tables():
+    """It returns all the table names as a list."""
+    return os.listdir(db_name+"/")
 
-    import pdb; pdb.set_trace()
+def join(left_table, right_table, type = "inner"):
+    """It joins two tables."""
+    return pd.merge(left_table, right_table, how = type)
