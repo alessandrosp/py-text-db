@@ -1,10 +1,10 @@
 ## What's py-text-db?
-It's just an attempt at creating a simple text database in Python. I am sure many other similar projects exist, this is something I am doing purely for fun.
+It's just an attempt at creating a simple text database in Python. I am sure many other similar projects exist, this is something I am doing purely for fun. Feedback are always welcome!
 
 ## Ten minutes to py-text-db
-Pytd is an extremely simple Python3 library to write and retrieve data to/from text files. Most of the syntax used in py-text-db is mutuated from SQL: create_table, insert_into, drop_database and so forth.
+Pytd is an extremely simple Python 3 library to write and retrieve data from text files. Most of the syntax used in py-text-db is mutuated from SQL: create_table, insert_into, drop_database, to name a few.
 
-To start using py-text-db in your application you only need to drop **py_text_db.py**, **db_settings.py** and **db/** into your folder application. Once you imported pytd you can start play with your new database, for example creating and populating a *user* table:
+To start using py-text-db in your application you only need to drop three files - **py_text_db.py**, **db_settings.py** and **db/** - into your folder application. Once you imported pytd, you can start play with your new database; you can use the **create_table()** and **insert_into** functions to create and populate a *user* table:
 
     import py_text_db as pytd
 
@@ -13,23 +13,23 @@ To start using py-text-db in your application you only need to drop **py_text_db
     pytd.insert_into("user", ["001", "John Bennoth", "john@example.com"])
     pytd.insert_into("user", ["002", "Bela Lugosi", "dracula@example.com"])
 
-If you look into your db/ folder you'll see a new text file has been created, *user*. Each row represents a user with the first row representing the header of the table. Values are separeated via tabs by default (this case be changed in the db_settings.py file).
+If you look into your db/ folder you will see that a new text file has been created, *user*. Each row represents a user with the first row representing the header of the table. Values are separeated via tabs by default (this can be easily changed in the db_settings.py file).
 
-As a matter of fact, you don't need to check the db/ folder, as you have two methods to explore the database and its tables: **show_tables()** and **select_from**, see:
+As a matter of fact, you do not need to check the db/ folder directly, as you have two methods to explore the database and its tables: **show_tables()** and **select_from()**, see:
 
     for table in pytd.show_tables():
         print(table) # It prints: user
 
-    pytd.select_from("user") # It returns the whole table without storing it
+    pytd.select_from("user") # It returns the whole table
 
-As we have not specified any *where* clause for the select_from, the whole table is returned. Tables are always returned as Pandas DataFrame.
+As we have not specified any *where* clause for the select_from(), the whole table is returned. Tables are always returned as Pandas DataFrame.
 
 | id | name | email |
 | :------------- | :------------- | :------------- |
 | 001 | John Bennoth | john@example.com |
 | 002 | Bela Lugosi | dracula@example.com |
 
-Let's populate the database some more, so that we can do more intersting stuff. We can start by creating some additional users:
+Let's populate the database some more, so that we can do more interesting stuff. We can start by creating some additional users:
 
     pytd.insert_into("user", ["003", "Claude Shannon", "entropy@example.com"])
     pytd.insert_into("user", ["004", "Alan Turing", "machine@example.com"])
