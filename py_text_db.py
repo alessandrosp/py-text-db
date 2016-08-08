@@ -2,9 +2,6 @@ import os
 import pandas as pd
 from db_settings import *
 
-# TODO(alessandrosp): Function to show all tables
-# TODO(alessandrosp): Inner joins between tables
-
 def compare(operator, first_arg, second_arg):
     """It compares first_arg against second_arg using operator."""
     if operator == "=":
@@ -22,32 +19,46 @@ def compare(operator, first_arg, second_arg):
     else:
         raise ValueError("No valid operator was specified")
 
-def create_table(table_name, fields):
-    """It creates a table using *fields* as header."""
+def show_tables():
+    """It returns all the table names as a list."""
+    return os.listdir(db_name+"/")
+
+def does_table_exist(table_name):
+    """Return True if table exists, False otherwise."""
+    return table_name in show_tables()
+
+def create_table(table_name, header_or_values, overwrite = False):
+    """It creates a new table using."""
     # TODO(alessandrosp): Validate *fields*
-    # TODO(alessandrosp): Allows to create a table + inserting using DataFrame
-    # TODO(alessandrosp): Check whether table exists, in case returns error,
-    #                     unless a overwrite is set to True
-    # Note: Currently if a table with the same exists it's over-written
-    location = db_name+"/"+table_name
 
-    # Create the header
-    header = ""
-    for field in fields:
-        if field == fields[-1]:
-            header += field
-        else:
-            header += field+delimeter
+    if (does_table_exist(table_name) and overwrite == False):
+        raise NameError("A table with that name already exists")
+    else:
+        location = db_name+"/"+table_name
 
-    # The table is created and the header written
-    with open(location, "w+") as table:
-        table.write(header+"\n")
+        # If just the header has been passed (list)
+        if isinstance(header_or_values, list):
+            # Create the header
+            header = ""
+            for field in header_or_values:
+                if field == header_or_values[-1]:
+                    header += field
+                else:
+                    header += field+delimeter
 
-    return None
+            # The table is created and the header written
+            with open(location, "w+") as table:
+                table.write(header+"\n")
+
+        # If Pandas DataFrame
+        elif isinstance(header_or_values, pd.DataFrame):
+            pass
+
+        return None
 
 def insert_into(table_name, values):
     """It inserts one or more new rows into table_name table"""
-    # TODO(alessandrosp): Validate values match fields
+    # TODO(alessandrosp): Validate values match fields len
 
     # The location of the table
     location = db_name+"/"+table_name
@@ -155,10 +166,6 @@ def select_from(table_name, where = None):
                                columns = results_list[0])
 
     return results
-
-def show_tables():
-    """It returns all the table names as a list."""
-    return os.listdir(db_name+"/")
 
 def join(left_table, right_table, type = "inner"):
     """It joins two tables."""
