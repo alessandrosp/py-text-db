@@ -143,7 +143,6 @@ def drop_database():
 
 def select_from(table_name, columns = [], where = None):
     """It returns one or more rows from the selected table."""
-    # TODO(alessandrosp): Specify which columns to return
 
     # The location of the table
     location = db_name+"/"+table_name
