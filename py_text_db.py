@@ -4,6 +4,8 @@ from db_settings import *
 
 def compare(operator, first_arg, second_arg):
     """It compares first_arg against second_arg using operator."""
+
+    # Match the right operator to the right operation
     if operator == "=":
         return first_arg == second_arg
     elif operator == "!=":
@@ -27,10 +29,20 @@ def does_table_exist(table_name):
     """Return True if table exists, False otherwise."""
     return table_name in show_tables()
 
+def check_number_columns(table_name):
+    """It returns the number of columns for the table."""
+
+    location = db_name+"/"+table_name
+    with open(location, "r") as table:
+        header = table.readline().strip("\n").split(delimeter)
+        print(header)
+        n_columns = len(header)
+    return n_columns
+
 def create_table(table_name, header_or_values, overwrite = False):
     """It creates a new table using."""
-    # TODO(alessandrosp): Validate *fields*
 
+    # Check whether table exists
     if (does_table_exist(table_name) and overwrite == False):
         raise NameError("A table with that name already exists")
     else:
@@ -58,13 +70,20 @@ def create_table(table_name, header_or_values, overwrite = False):
 
 def insert_into(table_name, values):
     """It inserts one or more new rows into table_name table"""
-    # TODO(alessandrosp): Validate values match fields len
+
+    # Check whether table exists
+    if not does_table_exist(table_name):
+        raise NameError("The table specified does not exist")
 
     # The location of the table
     location = db_name+"/"+table_name
 
     # If single row as list
     if isinstance(values, list):
+        # Validate the list is the proper length
+        if not check_number_columns(table_name) == len(values):
+            raise ValueError("Input data do not match table columns")
+
         # Create the row to insert into the table
         delimited_row = ""
         for element in values:
@@ -79,6 +98,10 @@ def insert_into(table_name, values):
 
     # If Pandas DataFrame
     elif isinstance(values, pd.DataFrame):
+        # Validate the DataFrame is the proper shape
+        if not check_number_columns(table_name) == values.shape[1]:
+            raise ValueError("Input data do not match table columns")
+
         # For each row in the DataFrame...
         for row in values.iterrows():
             delimited_row = ""
@@ -101,19 +124,24 @@ def insert_into(table_name, values):
 
 def drop_table(table_name):
     """It drops (i.e. deletes) the specified table."""
+
+    # Check wether table exists
+    if not does_table_exist(table_name):
+        raise NameError("The table specified does not exist")
+
     os.remove(db_name+"/"+table_name)
 
     return None
 
 def drop_database():
     """Use with caution: it deletes every table in the database."""
-    tables = os.listdir(db_name+"/")
-    for table in tables:
+
+    for table in show_tables():
         drop_table(table)
 
     return None
 
-def select_from(table_name, where = None):
+def select_from(table_name, columns = [], where = None):
     """It returns one or more rows from the selected table."""
     # TODO(alessandrosp): Specify which columns to return
 
@@ -164,6 +192,10 @@ def select_from(table_name, where = None):
         # Results are converted to a Pandas DataFrame
         results = pd.DataFrame(results_list[1:],
                                columns = results_list[0])
+
+    # Select the columns to return
+    if columns:
+        results = results[columns]
 
     return results
 
