@@ -198,6 +198,6 @@ def select_from(table_name, columns = [], where = None):
 
     return results
 
-def join(left_table, right_table, type = "inner"):
+def join(left_table, right_table, type = "inner", on = None):
     """It joins two tables."""
-    return pd.merge(left_table, right_table, how = type)
+    return pd.merge(left_table, right_table, how = type, on = on)
