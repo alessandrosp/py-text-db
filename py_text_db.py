@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from db_settings import *
 
-def compare(operator, first_arg, second_arg):
+def _compare(operator, first_arg, second_arg):
     """It compares first_arg against second_arg using operator."""
 
     # Match the right operator to the right operation
@@ -167,7 +167,7 @@ def select_from(table_name, columns = [], where = None):
                     values = row.strip("\n").split(delimeter)
                     count_match = 0
                     for key in where.keys():
-                        if compare( operator = where[key][0],
+                        if _compare(operator = where[key][0],
                                     first_arg = values[header.index(key)],
                                     second_arg = where[key][1]):
                             count_match += 1
