@@ -1,5 +1,5 @@
 ## What's py-text-db?
-It's just an attempt at creating a simple text database in Python. I am sure similar projects exist, this is something I am doing mostly for fun. Feedback are always welcome!
+It's just an attempt at creating a simple text database in Python. I am sure similar projects exist, this is something I am doing mostly for fun. Feedback is always welcome!
 
 ## Ten minutes to py-text-db
 ### Installation
